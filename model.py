@@ -47,25 +47,25 @@ model.fit(X_train, y_train)
 
 
 # Make predictions
-y_pred = model.predict(X_test)
+y_pred_proba = model.predict_proba(X_test)[:, 1]  # Get the probability of the positive class
 
 # Evaluate the model
+threshold = 0.5
+y_pred = (y_pred_proba >= threshold).astype(int)
 accuracy = accuracy_score(y_test, y_pred)
-print(f"Model Accuracy: {accuracy:.2f}")
-
-
+print(f"Model Accuracy: {accuracy:.6f}")
 
 # Prepare test data for prediction
 X_test = test_data.drop('id', axis=1)
 
-# Make predictions
-test_data['Response'] = model.predict(X_test)
+# Make predictions (probabilities for the test set)
+test_data['Response'] = model.predict_proba(X_test)[:, 1]
 
 # Generate a timestamp
 timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
 
 # Write predictions to a file
 submission_file = f'submission-{timestamp}.csv'
-test_data[['id', 'Response']].to_csv(submission_file, index=False)
+test_data[['id', 'Response']].to_csv(submission_file, index=False, float_format='%.4f')
 
 print(f"Predictions written to {submission_file}")
